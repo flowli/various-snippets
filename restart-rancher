@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# see https://github.com/rancher/rancher/issues/33300
+sudo sysctl -w net/netfilter/nf_conntrack_max=131072
+
+# start rancher
+docker rm -f rancher
+docker run —name=rancher \
+	—privileged \
+	-d —restart=unless-stopped \
+	-p 80:80 -p 443:443 \
+	-v /opt/rancher:/var/lib/rancher \
+	rancher/rancher:latest
+
+if [ “$1” == “-f” ]; then
+	docker logs rancher -f
+fi
