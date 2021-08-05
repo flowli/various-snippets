@@ -1,17 +1,19 @@
 #!/bin/bash
 
-# see https://github.com/rancher/rancher/issues/33300
+# error prevention. see https://github.com/rancher/rancher/issues/33300
 sudo sysctl -w net/netfilter/nf_conntrack_max=131072
 
-# start rancher
+# clear the container named "rancher"
 docker rm -f rancher
-docker run —name=rancher \
-	—privileged \
-	-d —restart=unless-stopped \
-	-p 80:80 -p 443:443 \
-	-v /opt/rancher:/var/lib/rancher \
-	rancher/rancher:latest
 
-if [ “$1” == “-f” ]; then
-	docker logs rancher -f
+# spin up a container named "rancher"
+docker run -d --restart=unless-stopped --privileged \
+        -p 80:80 -p 443:443 \
+        -v /opt/rancher:/var/lib/rancher \
+        --name=rancher \
+        rancher/rancher:v2.6-head
+
+# follow logs?
+if [ "$1" == "-f" ]; then
+        docker logs rancher -f
 fi
